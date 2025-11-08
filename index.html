@@ -8,13 +8,13 @@
         navigator.serviceWorker.register("/sw.js");
       }
       // Funkcja czyszcząca dane o 19
-      function clearDataAtMorning() {
+      function clearDataAtEndOfDay() {
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
 
         if (hours === 19 && minutes === 25) {
-          localStorage.removeItem("busSchedules"); // usuwa zapisane przystanki
+          localStorage.removeItem("busSchedules"); // usuwa zapisane przystanki kazdego dnia o 19:25
 
           savedSchedules = {}; // reset w pamięci aplikacji
           selectedStops = {};
@@ -24,7 +24,7 @@
       }
 
       // Uruchamiaj funkcję co minutę
-      setInterval(clearDataAtMorning, 60 * 1000);
+      setInterval(clearDataAtEndOfDay, 60 * 1000);
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -476,7 +476,7 @@
     </div>
 
     <script>
-      // Domyślny numer telefonu
+      // Domyślny numer telefonu - Robert
       const DEFAULT_PHONE = "572138563";
 
       // Przystanki
