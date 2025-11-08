@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Harmonogram Autobusu</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 20px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        margin-bottom: 5px;
+      }
+
+      .header p {
+        opacity: 0.9;
+        font-size: 14px;
+      }
+
+      .back-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .back-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .content {
+        padding: 20px;
+        max-height: calc(100vh - 250px);
+        overflow-y: auto;
+      }
+
+      .departure-item {
+        width: 100%;
+        margin-bottom: 10px;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        background: white;
+        overflow: hidden;
+        transition: all 0.2s;
+      }
+
+      .departure-item:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+      }
+
+      .departure-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+        cursor: pointer;
+      }
+
+      .departure-time {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .time-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      .time-text {
+        font-size: 22px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .badge {
+        background: #4ade80;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .departure-buttons {
+        display: flex;
+        gap: 10px;
+        padding: 0 20px 15px 20px;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 15px;
+      }
+
+      .departure-btn-small {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .copy-small {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+      }
+
+      .copy-small:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+      }
+
+      .copy-small.copied {
+        background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      }
+
+      .clear-small {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+      }
+
+      .clear-small:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+      }
+
+      .stop-btn {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        background: white;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s;
+      }
+
+      .stop-btn.selected {
+        background: #f0f4ff;
+        border-color: #667eea;
+      }
+
+      .checkbox {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #ddd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition: all 0.2s;
+      }
+
+      .stop-btn.selected .checkbox {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+      }
+
+      .stop-name {
+        flex: 1;
+        text-align: left;
+        margin-left: 15px;
+        font-size: 16px;
+        color: #333;
+      }
+
+      .stop-btn.selected .stop-name {
+        font-weight: 600;
+        color: #667eea;
+      }
+
+      .action-buttons {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 18px;
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .btn-sms {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+      }
+
+      .btn-sms:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4);
+      }
+
+      .btn-save {
+        background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+      }
+
+      .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(34, 197, 94, 0.4);
+      }
+
+      .btn-copy {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+      }
+
+      .btn-copy:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4);
+      }
+
+      .btn-copy.copied {
+        background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      }
+
+      .btn-clear {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+      }
+
+      .btn-clear:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(239, 68, 68, 0.4);
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Widok listy odjazdów -->
+      <div id="departures-view">
+        <div class="header">
+          <h1>🚌 Odjazdy Autobusu</h1>
+          <p>Wybierz godzinę odjazdu</p>
+        </div>
+        <div class="content" id="departures-list"></div>
+      </div>
+
+      <!-- Widok przystanków -->
+      <div id="stops-view" class="hidden">
+        <div class="header">
+          <button class="back-btn" onclick="showDepartures()">← Powrót</button>
+          <h1 id="selected-time">Kurs</h1>
+          <p id="stops-counter">Zaznacz przystanki</p>
+        </div>
+        <div class="content" id="stops-list"></div>
+        <div class="action-buttons">
+          <button class="btn btn-sms" onclick="sendSMS()">📱 Wyślij SMS</button>
+          <button
+            class="btn btn-copy"
+            id="copy-btn-stops"
+            onclick="copyToClipboard()"
+          >
+            📋 Skopiuj listę
+          </button>
+          <button class="btn btn-clear" onclick="clearCurrentStops()">
+            🗑️ Wyczyść przystanki
+          </button>
+          <button class="btn btn-save" onclick="saveStops()">💾 Zapisz</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const DRIVER_PHONE = "502699877";
+
+      // Przystanki
+      const busStops = [
+        "SKM Podjuchy",
+        "Skalista",
+        "Metalowa",
+        "Szlamowa",
+        "Granitowa",
+        "Zamieć",
+        "Ostowa",
+        "Lechicka",
+        "Chojnicka",
+        "Mielecka",
+        "Sąsiedzka",
+        "Chromowa",
+        "Ruda",
+        "Wschodnia",
+        "Grzegorzewskiej",
+        "Chełmińska",
+        "Miechowska",
+      ];
+
+      // Stan aplikacji
+      let currentDeparture = null;
+      let selectedStops = {};
+      let savedSchedules = {};
+
+      // Wczytaj zapisane dane
+      function loadData() {
+        const saved = localStorage.getItem("busSchedules");
+        if (saved) {
+          savedSchedules = JSON.parse(saved);
+        }
+      }
+
+      // Generuj odjazdy
+      function generateDepartures() {
+        const departures = [];
+        for (let hour = 7; hour <= 16; hour++) {
+          for (let minute of [0, 15, 30, 45]) {
+            if (hour === 16 && minute > 0) break;
+            const time = `${hour.toString().padStart(2, "0")}:${minute
+              .toString()
+              .padStart(2, "0")}`;
+            departures.push(time);
+          }
+        }
+        return departures;
+      }
+
+      // Wyświetl listę odjazdów
+      function renderDepartures() {
+        const list = document.getElementById("departures-list");
+        const departures = generateDepartures();
+
+        list.innerHTML = departures
+          .map((time) => {
+            const count = getSelectedCount(time);
+            const hasSavedStops = count > 0;
+
+            const badge = hasSavedStops
+              ? `<span class="badge">✓ ${count} ${
+                  count === 1 ? "przystanek" : "przystanki"
+                }</span>`
+              : "";
+
+            const buttons = hasSavedStops
+              ? `
+                    <div class="departure-buttons">
+                        <button class="departure-btn-small copy-small" onclick="copyDepartureList(event, '${time}')">📋 Skopiuj</button>
+                        <button class="departure-btn-small clear-small" onclick="clearDeparture(event, '${time}')">🗑️ Wyczyść</button>
+                    </div>
+                `
+              : "";
+
+            return `
+                    <div class="departure-item">
+                        <div class="departure-main" onclick="selectDeparture('${time}')">
+                            <div class="departure-time">
+                                <div class="time-icon">🕐</div>
+                                <span class="time-text">${time}</span>
+                            </div>
+                            ${badge}
+                        </div>
+                        ${buttons}
+                    </div>
+                `;
+          })
+          .join("");
+      }
+
+      // Ile przystanków zaznaczono dla danego odjazdu
+      function getSelectedCount(time) {
+        const stops = savedSchedules[time] || {};
+        return Object.values(stops).filter(Boolean).length;
+      }
+
+      // Wybierz odjazd
+      function selectDeparture(time) {
+        currentDeparture = time;
+        selectedStops = { ...(savedSchedules[time] || {}) };
+
+        document.getElementById(
+          "selected-time"
+        ).textContent = `📍 Kurs ${time}`;
+        renderStops();
+
+        document.getElementById("departures-view").classList.add("hidden");
+        document.getElementById("stops-view").classList.remove("hidden");
+      }
+
+      // Wyświetl przystanki
+      function renderStops() {
+        const list = document.getElementById("stops-list");
+        const count = Object.values(selectedStops).filter(Boolean).length;
+
+        document.getElementById(
+          "stops-counter"
+        ).textContent = `Zaznacz przystanki (${count} wybrano)`;
+
+        list.innerHTML = busStops
+          .map((stop) => {
+            const isSelected = selectedStops[stop];
+            const checkmark = isSelected ? "✓" : "";
+
+            return `
+                    <button class="stop-btn ${isSelected ? "selected" : ""}" 
+                            onclick="toggleStop('${stop}')">
+                        <div class="checkbox">${checkmark}</div>
+                        <span class="stop-name">${stop}</span>
+                    </button>
+                `;
+          })
+          .join("");
+      }
+
+      // Zaznacz/odznacz przystanek
+      function toggleStop(stop) {
+        selectedStops[stop] = !selectedStops[stop];
+        renderStops();
+      }
+
+      // Zapisz przystanki
+      function saveStops() {
+        savedSchedules[currentDeparture] = { ...selectedStops };
+        localStorage.setItem("busSchedules", JSON.stringify(savedSchedules));
+        showDepartures();
+      }
+
+      // Wyczyść aktualne przystanki
+      function clearCurrentStops() {
+        if (
+          confirm(
+            "Czy na pewno chcesz wyczyścić wszystkie zaznaczone przystanki?"
+          )
+        ) {
+          // Wyczyść wszystkie przystanki
+          busStops.forEach((stop) => {
+            selectedStops[stop] = false;
+          });
+          // Odśwież widok
+          renderStops();
+        }
+      }
+
+      // Wyczyść zapisane przystanki dla danego odjazdu
+      function clearDeparture(event, time) {
+        event.stopPropagation();
+
+        if (
+          confirm(
+            `Czy na pewno chcesz wyczyścić przystanki dla kursu o ${time}?`
+          )
+        ) {
+          delete savedSchedules[time];
+          localStorage.setItem("busSchedules", JSON.stringify(savedSchedules));
+          renderDepartures();
+        }
+      }
+
+      // Skopiuj listę z ekranu odjazdów
+      function copyDepartureList(event, time) {
+        event.stopPropagation();
+
+        const stops = savedSchedules[time] || {};
+        const selected = busStops.filter((stop) => stops[stop]);
+
+        if (selected.length === 0) {
+          return;
+        }
+
+        const text = `Lista przystanków na kurs o godzinie ${time}:\n\n${selected
+          .map((stop, i) => `${i + 1}. ${stop}`)
+          .join("\n")}`;
+
+        const copyBtn = event.target;
+
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = "✓ Skopiowano";
+            copyBtn.classList.add("copied");
+
+            setTimeout(() => {
+              copyBtn.textContent = originalText;
+              copyBtn.classList.remove("copied");
+            }, 2000);
+          })
+          .catch(() => {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = "✓ Skopiowano";
+            copyBtn.classList.add("copied");
+
+            setTimeout(() => {
+              copyBtn.textContent = originalText;
+              copyBtn.classList.remove("copied");
+            }, 2000);
+          });
+      }
+
+      // Wyślij SMS
+      function sendSMS() {
+        const selected = busStops.filter((stop) => selectedStops[stop]);
+
+        if (selected.length === 0) {
+          alert("Nie zaznaczono żadnych przystanków!");
+          return;
+        }
+
+        const text = `Lista przystanków na kurs o godzinie ${currentDeparture}:\n\n${selected
+          .map((stop, i) => `${i + 1}. ${stop}`)
+          .join("\n")}`;
+
+        // Koduj tekst dla URL
+        const encodedText = encodeURIComponent(text);
+
+        // Otwórz aplikację SMS z numerem i tekstem
+        const smsURL = `sms:${DRIVER_PHONE}?body=${encodedText}`;
+        window.location.href = smsURL;
+      }
+
+      // Skopiuj listę do schowka (z widoku przystanków)
+      function copyToClipboard() {
+        const selected = busStops.filter((stop) => selectedStops[stop]);
+
+        if (selected.length === 0) {
+          alert("Nie zaznaczono żadnych przystanków!");
+          return;
+        }
+
+        const text = `Lista przystanków na kurs o godzinie ${currentDeparture}:\n\n${selected
+          .map((stop, i) => `${i + 1}. ${stop}`)
+          .join("\n")}`;
+
+        const btn = document.getElementById("copy-btn-stops");
+
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            const originalText = btn.textContent;
+            btn.textContent = "✓ Skopiowano!";
+            btn.classList.add("copied");
+
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.classList.remove("copied");
+            }, 2000);
+          })
+          .catch(() => {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+
+            const originalText = btn.textContent;
+            btn.textContent = "✓ Skopiowano!";
+            btn.classList.add("copied");
+
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.classList.remove("copied");
+            }, 2000);
+          });
+      }
+
+      // Powrót do listy odjazdów
+      function showDepartures() {
+        document.getElementById("stops-view").classList.add("hidden");
+        document.getElementById("departures-view").classList.remove("hidden");
+        renderDepartures();
+      }
+
+      // Inicjalizacja
+      loadData();
+      renderDepartures();
+    </script>
+  </body>
+</html>
