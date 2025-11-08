@@ -32,6 +32,7 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         padding: 30px 20px;
+        position: relative;
       }
 
       .header h1 {
@@ -42,6 +43,29 @@
       .header p {
         opacity: 0.9;
         font-size: 14px;
+      }
+
+      .settings-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+
+      .settings-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
       }
 
       .back-btn {
@@ -283,6 +307,55 @@
         box-shadow: 0 15px 30px rgba(239, 68, 68, 0.4);
       }
 
+      .settings-form {
+        padding: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.2s;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .phone-info {
+        background: #f0f4ff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+      }
+
+      .phone-info p {
+        margin: 5px 0;
+        color: #555;
+        font-size: 14px;
+      }
+
+      .phone-info strong {
+        color: #667eea;
+        font-size: 18px;
+      }
+
       .hidden {
         display: none;
       }
@@ -293,6 +366,7 @@
       <!-- Widok listy odjazdów -->
       <div id="departures-view">
         <div class="header">
+          <button class="settings-btn" onclick="showSettings()">⚙️</button>
           <h1>🚌 Odjazdy Autobusu 904</h1>
           <p>Wybierz godzinę odjazdu</p>
         </div>
@@ -322,10 +396,42 @@
           <button class="btn btn-save" onclick="saveStops()">💾 Zapisz</button>
         </div>
       </div>
+
+      <!-- Widok ustawień -->
+      <div id="settings-view" class="hidden">
+        <div class="header">
+          <button class="back-btn" onclick="showDepartures()">← Powrót</button>
+          <h1>⚙️ Ustawienia</h1>
+          <p>Skonfiguruj aplikację</p>
+        </div>
+        <div class="settings-form">
+          <div class="phone-info">
+            <p>Aktualny numer telefonu:</p>
+            <p><strong id="current-phone-display">502699877</strong></p>
+          </div>
+
+          <div class="form-group">
+            <label for="phone-input">Numer telefonu kierowcy:</label>
+            <input
+              type="tel"
+              id="phone-input"
+              placeholder="np. 502699877"
+              maxlength="15"
+            />
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn btn-save" onclick="savePhoneNumber()">
+              💾 Zapisz numer
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-      const DRIVER_PHONE = "502699877";
+      // Domyślny numer telefonu
+      const DEFAULT_PHONE = "502699877";
 
       // Przystanki
       const busStops = [
@@ -352,6 +458,7 @@
       let currentDeparture = null;
       let selectedStops = {};
       let savedSchedules = {};
+      let driverPhone = DEFAULT_PHONE;
 
       // Wczytaj zapisane dane
       function loadData() {
@@ -359,6 +466,53 @@
         if (saved) {
           savedSchedules = JSON.parse(saved);
         }
+
+        const savedPhone = localStorage.getItem("driverPhone");
+        if (savedPhone) {
+          driverPhone = savedPhone;
+        }
+
+        updatePhoneDisplay();
+      }
+
+      // Aktualizuj wyświetlany numer
+      function updatePhoneDisplay() {
+        document.getElementById("current-phone-display").textContent =
+          driverPhone;
+        document.getElementById("phone-input").value = driverPhone;
+      }
+
+      // Pokaż ustawienia
+      function showSettings() {
+        document.getElementById("departures-view").classList.add("hidden");
+        document.getElementById("stops-view").classList.add("hidden");
+        document.getElementById("settings-view").classList.remove("hidden");
+        updatePhoneDisplay();
+      }
+
+      // Zapisz numer telefonu
+      function savePhoneNumber() {
+        const input = document.getElementById("phone-input").value.trim();
+
+        if (!input) {
+          alert("Proszę wpisać numer telefonu!");
+          return;
+        }
+
+        // Usuń wszystko oprócz cyfr i znaku +
+        const cleanPhone = input.replace(/[^\d+]/g, "");
+
+        if (cleanPhone.length < 9) {
+          alert("Numer telefonu jest za krótki!");
+          return;
+        }
+
+        driverPhone = cleanPhone;
+        localStorage.setItem("driverPhone", driverPhone);
+        updatePhoneDisplay();
+
+        alert(`✅ Numer zapisany: ${driverPhone}`);
+        showDepartures();
       }
 
       // Generuj odjazdy
@@ -482,11 +636,9 @@
             "Czy na pewno chcesz wyczyścić wszystkie zaznaczone przystanki?"
           )
         ) {
-          // Wyczyść wszystkie przystanki
           busStops.forEach((stop) => {
             selectedStops[stop] = false;
           });
-          // Odśwież widok
           renderStops();
         }
       }
@@ -567,11 +719,8 @@
           .map((stop, i) => `${i + 1}. ${stop}`)
           .join("\n")}`;
 
-        // Koduj tekst dla URL
         const encodedText = encodeURIComponent(text);
-
-        // Otwórz aplikację SMS z numerem i tekstem
-        const smsURL = `sms:${DRIVER_PHONE}?body=${encodedText}`;
+        const smsURL = `sms:${driverPhone}?body=${encodedText}`;
         window.location.href = smsURL;
       }
 
@@ -624,6 +773,7 @@
       // Powrót do listy odjazdów
       function showDepartures() {
         document.getElementById("stops-view").classList.add("hidden");
+        document.getElementById("settings-view").classList.add("hidden");
         document.getElementById("departures-view").classList.remove("hidden");
         renderDepartures();
       }
