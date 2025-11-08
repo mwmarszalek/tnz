@@ -574,7 +574,7 @@
           "10:00",
           "10:30",
           "11:00",
-          "PRZERWA",
+          "Przerwa",
           "12:15",
           "12:45",
           "13:15",
@@ -595,15 +595,15 @@
         list.innerHTML = departures
           .map((time) => {
             // Sprawdź czy to przerwa
-            if (time === "PRZERWA") {
+            if (time === "Przerwa") {
               return `
                 <div class="departure-item break-time">
                   <div class="departure-main" style="cursor: not-allowed;">
                     <div class="departure-time">
                       <div class="time-icon">☕</div>
-                      <span class="time-text">PRZERWA</span>
+                      <span class="time-text">Przerwa</span>
                     </div>
-                    <span class="badge" style="background: #fbbf24;">11:00 - 12:15</span>
+                    <span class="badge" style="background: #fbbf24;">11:00-12:15</span>
                   </div>
                 </div>
               `;
