@@ -2,30 +2,8 @@
 <html lang="pl">
   <head>
     <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
     <meta name="theme-color" content="#667eea" />
-    <script>
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/sw.js");
-      }
-      // Funkcja czyszcząca dane o 19
-      function clearDataAtEndOfDay() {
-        const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-
-        if (hours === 19 && minutes === 25) {
-          localStorage.removeItem("busSchedules"); // usuwa zapisane przystanki kazdego dnia o 19:25
-
-          savedSchedules = {}; // reset w pamięci aplikacji
-          selectedStops = {};
-          renderDepartures();
-          console.log("✅ Lokalna pamięć została wyczyszczona o 19:25");
-        }
-      }
-
-      // Uruchamiaj funkcję co minutę
-      setInterval(clearDataAtEndOfDay, 60 * 1000);
-    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Transport Na Żądanie</title>
@@ -476,7 +454,7 @@
     </div>
 
     <script>
-      // Domyślny numer telefonu - Robert
+      // Domyślny numer telefonu
       const DEFAULT_PHONE = "572138563";
 
       // Przystanki
@@ -545,7 +523,6 @@
           return;
         }
 
-        // Usuń wszystko oprócz cyfr i znaku +
         const cleanPhone = input.replace(/[^\d+]/g, "");
 
         if (cleanPhone.length < 9) {
@@ -595,7 +572,6 @@
 
         list.innerHTML = departures
           .map((time) => {
-            // Sprawdź czy to przerwa
             if (time === "Przerwa") {
               return `
                 <div class="departure-item break-time">
@@ -797,7 +773,7 @@
         window.location.href = smsURL;
       }
 
-      // Skopiuj listę do schowka (z widoku przystanków)
+      // Skopiuj listę do schowka
       function copyToClipboard() {
         const selected = busStops.filter((stop) => selectedStops[stop]);
 
@@ -849,6 +825,39 @@
         document.getElementById("settings-view").classList.add("hidden");
         document.getElementById("departures-view").classList.remove("hidden");
         renderDepartures();
+      }
+
+      // ===== AUTOMATYCZNE CZYSZCZENIE DANYCH O 19:25 =====
+      function clearDataAtEndOfDay() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+
+        if (hours === 19 && minutes === 25) {
+          // Wyczyść localStorage
+          localStorage.removeItem("busSchedules");
+
+          // Reset zmiennych globalnych
+          savedSchedules = {};
+          selectedStops = {};
+
+          // Odśwież widok
+          renderDepartures();
+
+          console.log("✅ Lokalna pamięć została wyczyszczona o 19:25");
+          alert("🔄 Dane zostały automatycznie wyczyszczone o 19:25");
+        }
+      }
+
+      // Sprawdzaj co minutę
+      setInterval(clearDataAtEndOfDay, 60 * 1000);
+
+      // ===== SERVICE WORKER =====
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then(() => console.log("✅ Service Worker zarejestrowany"))
+          .catch((err) => console.log("❌ Service Worker błąd:", err));
       }
 
       // Inicjalizacja
