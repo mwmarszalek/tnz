@@ -7,13 +7,12 @@
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/sw.js");
       }
-      // Funkcja czyszcząca dane o 08:30
+      // Funkcja czyszcząca dane o 19
       function clearDataAtMorning() {
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
 
-        // Sprawdzenie czy jest 08:30
         if (hours === 19 && minutes === 25) {
           localStorage.removeItem("busSchedules"); // usuwa zapisane przystanki
 
