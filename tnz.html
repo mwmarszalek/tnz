@@ -92,6 +92,27 @@
         overflow-y: auto;
       }
 
+      .departure-item.break-time {
+        border-color: #fbbf24;
+        background: #fffbeb;
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
+      .departure-item.break-time:hover {
+        border-color: #fbbf24;
+        box-shadow: none;
+        transform: none;
+      }
+
+      .departure-item.break-time .time-icon {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      }
+
+      .departure-item.break-time .time-text {
+        color: #92400e;
+      }
+
       .departure-item {
         width: 100%;
         margin-bottom: 10px;
@@ -515,19 +536,30 @@
         showDepartures();
       }
 
-      // Generuj odjazdy
+      // Generuj odjazdy - rzeczywisty rozkład jazdy
       function generateDepartures() {
-        const departures = [];
-        for (let hour = 7; hour <= 16; hour++) {
-          for (let minute of [0, 15, 30, 45]) {
-            if (hour === 16 && minute > 0) break;
-            const time = `${hour.toString().padStart(2, "0")}:${minute
-              .toString()
-              .padStart(2, "0")}`;
-            departures.push(time);
-          }
-        }
-        return departures;
+        return [
+          "06:27",
+          "07:10",
+          "07:40",
+          "08:10",
+          "08:40",
+          "09:10",
+          "09:33",
+          "10:00",
+          "10:30",
+          "11:00",
+          "PRZERWA",
+          "12:15",
+          "12:45",
+          "13:15",
+          "13:45",
+          "14:15",
+          "14:45",
+          "15:15",
+          "15:45",
+          "16:15",
+        ];
       }
 
       // Wyświetl listę odjazdów
@@ -537,6 +569,21 @@
 
         list.innerHTML = departures
           .map((time) => {
+            // Sprawdź czy to przerwa
+            if (time === "PRZERWA") {
+              return `
+                <div class="departure-item break-time">
+                  <div class="departure-main" style="cursor: not-allowed;">
+                    <div class="departure-time">
+                      <div class="time-icon">☕</div>
+                      <span class="time-text">PRZERWA</span>
+                    </div>
+                    <span class="badge" style="background: #fbbf24;">11:00 - 12:15</span>
+                  </div>
+                </div>
+              `;
+            }
+
             const count = getSelectedCount(time);
             const hasSavedStops = count > 0;
 
