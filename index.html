@@ -1957,14 +1957,16 @@
 
       // Ile przystanków zaznaczono dla danego odjazdu
       function getSelectedCount(time) {
-        const stops = savedSchedules[time] || {};
+        const scheduleKey = `${scheduleType}_${time}`;
+        const stops = savedSchedules[scheduleKey] || {};
         return Object.values(stops).filter(Boolean).length;
       }
 
       // Wybierz odjazd
       function selectDeparture(time) {
         currentDeparture = time;
-        selectedStops = { ...(savedSchedules[time] || {}) };
+        const scheduleKey = `${scheduleType}_${time}`;
+        selectedStops = { ...(savedSchedules[scheduleKey] || {}) };
 
         document.getElementById(
           "selected-time"
@@ -2015,7 +2017,8 @@
 
       // Zapisz przystanki
       function saveStops() {
-        savedSchedules[currentDeparture] = { ...selectedStops };
+        const scheduleKey = `${scheduleType}_${currentDeparture}`;
+        savedSchedules[scheduleKey] = { ...selectedStops };
         localStorage.setItem("busSchedules", JSON.stringify(savedSchedules));
         showDepartures();
       }
@@ -2043,7 +2046,8 @@
             `Czy na pewno chcesz wyczyścić przystanki dla kursu o ${time}?`
           )
         ) {
-          delete savedSchedules[time];
+          const scheduleKey = `${scheduleType}_${time}`;
+          delete savedSchedules[scheduleKey];
           localStorage.setItem("busSchedules", JSON.stringify(savedSchedules));
           renderDepartures();
         }
@@ -2053,7 +2057,8 @@
       function copyDepartureList(event, time) {
         event.stopPropagation();
 
-        const stops = savedSchedules[time] || {};
+        const scheduleKey = `${scheduleType}_${time}`;
+        const stops = savedSchedules[scheduleKey] || {};
         const selected = busStops.filter((stop) => stops[stop]);
 
         if (selected.length === 0) {
@@ -2175,7 +2180,8 @@
         document.getElementById("stops-view").classList.add("hidden");
         document.getElementById("settings-view").classList.add("hidden");
         document.getElementById("departures-view").classList.remove("hidden");
-        savedSchedules[currentDeparture] = { ...selectedStops };
+        const scheduleKey = `${scheduleType}_${currentDeparture}`;
+        savedSchedules[scheduleKey] = { ...selectedStops };
         localStorage.setItem("busSchedules", JSON.stringify(savedSchedules));
         renderDepartures();
       }
