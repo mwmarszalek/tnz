@@ -2175,6 +2175,8 @@
         document.getElementById("stops-view").classList.add("hidden");
         document.getElementById("settings-view").classList.add("hidden");
         document.getElementById("departures-view").classList.remove("hidden");
+        savedSchedules[currentDeparture] = { ...selectedStops };
+        localStorage.setItem("busSchedules", JSON.stringify(savedSchedules));
         renderDepartures();
       }
 
