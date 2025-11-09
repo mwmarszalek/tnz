@@ -1969,23 +1969,22 @@
         ).textContent = `Zaznacz przystanki (${count} wybrano)`;
 
         list.innerHTML = busStops
+          .filter((stop) => stopTimes[stop] !== undefined) // ✅ tylko przystanki z czasem
           .map((stop) => {
             const isSelected = selectedStops[stop];
             const checkmark = isSelected ? "✓" : "";
-            const time = stopTimes[stop] || "--:--";
+            const time = stopTimes[stop];
 
             return `
-                              <button class="stop-btn ${
-                                isSelected ? "selected" : ""
-                              }"
-                                      onclick="toggleStop('${stop}')">
-                                  <div class="stop-left">
-                                    <div class="checkbox">${checkmark}</div>
-                                    <span class="stop-name">${stop}</span>
-                                  </div>
-                                  <span class="stop-time">${time}</span>
-                              </button>
-                          `;
+      <button class="stop-btn ${isSelected ? "selected" : ""}"
+              onclick="toggleStop('${stop}')">
+          <div class="stop-left">
+            <div class="checkbox">${checkmark}</div>
+            <span class="stop-name">${stop}</span>
+          </div>
+          <span class="stop-time">${time}</span>
+      </button>
+    `;
           })
           .join("");
       }
