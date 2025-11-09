@@ -305,15 +305,27 @@
       }
 
       .action-buttons {
-        position: fixed; /* przyklejone do dołu */
-        bottom: 0;
+        position: fixed;
+        bottom: 30px;
         left: 0;
-        width: 100%; /* cała szerokość ekranu */
+        width: 100%;
         padding: 20px;
         display: flex;
-        flex-direction: column; /* jeden pod drugim */
+        flex-direction: column;
         gap: 10px;
         background-color: transparent;
+      }
+
+      .action-buttons button {
+        width: 50%;
+        align-self: center;
+        padding: 12px 20px;
+        font-size: 24px;
+        border-radius: 20px; /* duże zaokrąglenie rogów */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* delikatny cień */
+        background-color: #007bff; /* niebieski przycisk, możesz zmienić */
+        color: white; /* tekst w kontrastowym kolorze */
+        border: none; /* bez obramowania */
       }
 
       .btn {
