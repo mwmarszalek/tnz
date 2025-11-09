@@ -71,6 +71,31 @@
         transform: rotate(90deg);
       }
 
+      .schedule-toggle {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+      }
+
+      .schedule-toggle:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .schedule-toggle.active {
+        background: rgba(255, 255, 255, 0.9);
+        color: #667eea;
+        font-weight: 600;
+      }
+
       .back-btn {
         background: rgba(255, 255, 255, 0.2);
         border: none;
@@ -225,12 +250,18 @@
         font-size: 16px;
         display: flex;
         align-items: center;
+        justify-content: space-between;
         transition: all 0.2s;
       }
 
       .stop-btn.selected {
         background: #f0f4ff;
         border-color: #667eea;
+      }
+
+      .stop-left {
+        display: flex;
+        align-items: center;
       }
 
       .checkbox {
@@ -252,7 +283,6 @@
       }
 
       .stop-name {
-        flex: 1;
         text-align: left;
         margin-left: 15px;
         font-size: 16px;
@@ -262,6 +292,15 @@
       .stop-btn.selected .stop-name {
         font-weight: 600;
         color: #667eea;
+      }
+
+      .stop-time {
+        font-size: 14px;
+        color: #667eea;
+        font-weight: 600;
+        padding: 4px 8px;
+        background: #f0f4ff;
+        border-radius: 8px;
       }
 
       .action-buttons {
@@ -393,6 +432,22 @@
           <button class="settings-btn" onclick="showSettings()">⚙️</button>
           <h1>🚌 Odjazdy Autobusu</h1>
           <p>Wybierz godzinę odjazdu</p>
+          <div style="margin-top: 15px">
+            <button
+              class="schedule-toggle"
+              id="school-toggle"
+              onclick="toggleScheduleType('school')"
+            >
+              📚 Dni szkolne
+            </button>
+            <button
+              class="schedule-toggle active"
+              id="vacation-toggle"
+              onclick="toggleScheduleType('vacation')"
+            >
+              🏖️ Dni wolne
+            </button>
+          </div>
         </div>
         <div class="content" id="departures-list"></div>
       </div>
@@ -457,6 +512,9 @@
       // Domyślny numer telefonu
       const DEFAULT_PHONE = "572138563";
 
+      // Typ rozkładu: 'school' lub 'vacation'
+      let scheduleType = "vacation";
+
       // Przystanki
       const busStops = [
         "SKM Podjuchy",
@@ -478,11 +536,156 @@
         "Miechowska",
       ];
 
+      // ROZKŁAD JAZDY - DNI SZKOLNE
+      const scheduleSchool = {
+        "06:27": {
+          "SKM Podjuchy": "06:27",
+          Skalista: "06:29",
+          Metalowa: "06:31",
+          Szlamowa: "06:33",
+          Granitowa: "06:35",
+          Zamieć: "06:37",
+          Ostowa: "06:39",
+          Lechicka: "06:41",
+          Chojnicka: "06:43",
+          Mielecka: "06:45",
+          Sąsiedzka: "06:47",
+          Chromowa: "06:49",
+          Ruda: "06:51",
+          Wschodnia: "06:53",
+          Grzegorzewskiej: "06:55",
+          Chełmińska: "06:57",
+          Miechowska: "06:59",
+        },
+        "06:40": {
+          "SKM Podjuchy": "06:40",
+          Skalista: "06:42",
+          Metalowa: "06:44",
+          Szlamowa: "06:46",
+          Granitowa: "06:48",
+          Zamieć: "06:50",
+          Ostowa: "06:52",
+          Lechicka: "06:54",
+          Chojnicka: "06:56",
+          Mielecka: "06:58",
+          Sąsiedzka: "07:00",
+          Chromowa: "07:02",
+          Ruda: "07:04",
+          Wschodnia: "07:06",
+          Grzegorzewskiej: "07:08",
+          Chełmińska: "07:10",
+          Miechowska: "07:12",
+        },
+        "07:10": {
+          "SKM Podjuchy": "07:10",
+          Skalista: "07:12",
+          Metalowa: "07:14",
+          Szlamowa: "07:16",
+          Granitowa: "07:18",
+          Zamieć: "07:20",
+          Ostowa: "07:22",
+          Lechicka: "07:24",
+          Chojnicka: "07:26",
+          Mielecka: "07:28",
+          Sąsiedzka: "07:30",
+          Chromowa: "07:32",
+          Ruda: "07:34",
+          Wschodnia: "07:36",
+          Grzegorzewskiej: "07:38",
+          Chełmińska: "07:40",
+          Miechowska: "07:42",
+        },
+        "07:40": {
+          "SKM Podjuchy": "07:40",
+          Skalista: "07:42",
+          Metalowa: "07:44",
+          Szlamowa: "07:46",
+          Granitowa: "07:48",
+          Zamieć: "07:50",
+          Ostowa: "07:52",
+          Lechicka: "07:54",
+          Chojnicka: "07:56",
+          Mielecka: "07:58",
+          Sąsiedzka: "08:00",
+          Chromowa: "08:02",
+          Ruda: "08:04",
+          Wschodnia: "08:06",
+          Grzegorzewskiej: "08:08",
+          Chełmińska: "08:10",
+          Miechowska: "08:12",
+        },
+      };
+
+      // ROZKŁAD JAZDY - DNI WOLNE OD NAUKI
+      const scheduleVacation = {
+        "06:27": {
+          "SKM Podjuchy": "06:27",
+          Skalista: "06:30",
+          Metalowa: "06:33",
+          Szlamowa: "06:36",
+          Granitowa: "06:39",
+          Zamieć: "06:42",
+          Ostowa: "06:45",
+          Lechicka: "06:48",
+          Chojnicka: "06:51",
+          Mielecka: "06:54",
+          Sąsiedzka: "06:57",
+          Chromowa: "07:00",
+          Ruda: "07:03",
+          Wschodnia: "07:06",
+          Grzegorzewskiej: "07:09",
+          Chełmińska: "07:12",
+          Miechowska: "07:15",
+        },
+        "08:10": {
+          "SKM Podjuchy": "08:10",
+          Skalista: "08:13",
+          Metalowa: "08:16",
+          Szlamowa: "08:19",
+          Granitowa: "08:22",
+          Zamieć: "08:25",
+          Ostowa: "08:28",
+          Lechicka: "08:31",
+          Chojnicka: "08:34",
+          Mielecka: "08:37",
+          Sąsiedzka: "08:40",
+          Chromowa: "08:43",
+          Ruda: "08:46",
+          Wschodnia: "08:49",
+          Grzegorzewskiej: "08:52",
+          Chełmińska: "08:55",
+          Miechowska: "08:58",
+        },
+      };
+
       // Stan aplikacji
       let currentDeparture = null;
       let selectedStops = {};
       let savedSchedules = {};
       let driverPhone = DEFAULT_PHONE;
+
+      // Przełącz typ rozkładu
+      function toggleScheduleType(type) {
+        scheduleType = type;
+
+        // Aktualizuj wygląd przycisków
+        document.getElementById("school-toggle").classList.remove("active");
+        document.getElementById("vacation-toggle").classList.remove("active");
+
+        if (type === "school") {
+          document.getElementById("school-toggle").classList.add("active");
+        } else {
+          document.getElementById("vacation-toggle").classList.add("active");
+        }
+
+        // Odśwież listę odjazdów
+        renderDepartures();
+      }
+
+      // Pobierz aktualny rozkład
+      function getCurrentSchedule() {
+        return scheduleType === "school" ? scheduleSchool : scheduleVacation;
+      }
 
       // Wczytaj zapisane dane
       function loadData() {
@@ -538,31 +741,10 @@
         showDepartures();
       }
 
-      // Generuj odjazdy - rzeczywisty rozkład jazdy
+      // Generuj odjazdy na podstawie aktywnego rozkładu
       function generateDepartures() {
-        return [
-          "06:27",
-          "06:40",
-          "07:10",
-          "07:40",
-          "08:10",
-          "08:40",
-          "09:10",
-          "09:33",
-          "10:00",
-          "10:30",
-          "11:00",
-          "Przerwa",
-          "12:15",
-          "12:45",
-          "13:15",
-          "13:45",
-          "14:15",
-          "14:45",
-          "15:15",
-          "15:45",
-          "16:15",
-        ];
+        const schedule = getCurrentSchedule();
+        return Object.keys(schedule);
       }
 
       // Wyświetl listę odjazdów
@@ -572,20 +754,6 @@
 
         list.innerHTML = departures
           .map((time) => {
-            if (time === "Przerwa") {
-              return `
-                <div class="departure-item break-time">
-                  <div class="departure-main" style="cursor: not-allowed;">
-                    <div class="departure-time">
-                      <div class="time-icon">☕</div>
-                      <span class="time-text">Przerwa</span>
-                    </div>
-                    <span class="badge" style="background: #fbbf24;">11:00-12:15</span>
-                  </div>
-                </div>
-              `;
-            }
-
             const count = getSelectedCount(time);
             const hasSavedStops = count > 0;
 
@@ -640,10 +808,12 @@
         document.getElementById("stops-view").classList.remove("hidden");
       }
 
-      // Wyświetl przystanki
+      // Wyświetl przystanki z godzinami
       function renderStops() {
         const list = document.getElementById("stops-list");
         const count = Object.values(selectedStops).filter(Boolean).length;
+        const schedule = getCurrentSchedule();
+        const stopTimes = schedule[currentDeparture] || {};
 
         document.getElementById(
           "stops-counter"
@@ -653,12 +823,16 @@
           .map((stop) => {
             const isSelected = selectedStops[stop];
             const checkmark = isSelected ? "✓" : "";
+            const time = stopTimes[stop] || "--:--";
 
             return `
                     <button class="stop-btn ${isSelected ? "selected" : ""}" 
                             onclick="toggleStop('${stop}')">
-                        <div class="checkbox">${checkmark}</div>
-                        <span class="stop-name">${stop}</span>
+                        <div class="stop-left">
+                          <div class="checkbox">${checkmark}</div>
+                          <span class="stop-name">${stop}</span>
+                        </div>
+                        <span class="stop-time">${time}</span>
                     </button>
                 `;
           })
@@ -718,8 +892,11 @@
           return;
         }
 
+        const schedule = getCurrentSchedule();
+        const stopTimes = schedule[time] || {};
+
         const text = `Lista przystanków na kurs o godzinie ${time}:\n\n${selected
-          .map((stop, i) => `${i + 1}. ${stop}`)
+          .map((stop, i) => `${i + 1}. ${stop} - ${stopTimes[stop] || "--:--"}`)
           .join("\n")}`;
 
         const copyBtn = event.target;
@@ -764,8 +941,11 @@
           return;
         }
 
+        const schedule = getCurrentSchedule();
+        const stopTimes = schedule[currentDeparture] || {};
+
         const text = `Lista przystanków na kurs o godzinie ${currentDeparture}:\n\n${selected
-          .map((stop, i) => `${i + 1}. ${stop}`)
+          .map((stop, i) => `${i + 1}. ${stop} - ${stopTimes[stop] || "--:--"}`)
           .join("\n")}`;
 
         const encodedText = encodeURIComponent(text);
@@ -782,8 +962,11 @@
           return;
         }
 
+        const schedule = getCurrentSchedule();
+        const stopTimes = schedule[currentDeparture] || {};
+
         const text = `Lista przystanków na kurs o godzinie ${currentDeparture}:\n\n${selected
-          .map((stop, i) => `${i + 1}. ${stop}`)
+          .map((stop, i) => `${i + 1}. ${stop} - ${stopTimes[stop] || "--:--"}`)
           .join("\n")}`;
 
         const btn = document.getElementById("copy-btn-stops");
@@ -834,16 +1017,10 @@
         const minutes = now.getMinutes();
 
         if (hours === 19 && minutes === 25) {
-          // Wyczyść localStorage
           localStorage.removeItem("busSchedules");
-
-          // Reset zmiennych globalnych
           savedSchedules = {};
           selectedStops = {};
-
-          // Odśwież widok
           renderDepartures();
-
           console.log("✅ Lokalna pamięć została wyczyszczona o 19:25");
           alert("🔄 Dane zostały automatycznie wyczyszczone o 19:25");
         }
