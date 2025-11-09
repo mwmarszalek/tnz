@@ -29,6 +29,7 @@
         border-radius: 20px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         overflow: hidden;
+        padding-bottom: 120px;
       }
 
       .header {
@@ -304,10 +305,15 @@
       }
 
       .action-buttons {
+        position: fixed; /* przyklejone do dołu */
+        bottom: 0;
+        left: 0;
+        width: 100%; /* cała szerokość ekranu */
         padding: 20px;
         display: flex;
-        flex-direction: column;
+        flex-direction: column; /* jeden pod drugim */
         gap: 10px;
+        background-color: transparent;
       }
 
       .btn {
@@ -466,8 +472,9 @@
         </div>
         <div class="content" id="stops-list"></div>
         <div class="action-buttons">
+          <button class="btn btn-save" onclick="saveStops()">💾 Zapisz</button>
           <button class="btn btn-sms" onclick="sendSMS()">📱 Wyślij SMS</button>
-          <button
+          <!-- <button
             class="btn btn-copy"
             id="copy-btn-stops"
             onclick="copyToClipboard()"
@@ -476,8 +483,7 @@
           </button>
           <button class="btn btn-clear" onclick="clearCurrentStops()">
             🗑️ Wyczyść przystanki
-          </button>
-          <button class="btn btn-save" onclick="saveStops()">💾 Zapisz</button>
+          </button> -->
         </div>
       </div>
 
