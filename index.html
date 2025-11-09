@@ -419,6 +419,11 @@
         font-size: 18px;
       }
 
+      .time-sub {
+        font-size: 12px;
+        color: #666;
+      }
+
       .hidden {
         display: none;
       }
@@ -509,6 +514,17 @@
     </div>
 
     <script>
+      // Formatowanie nazwy przystanku
+      function formatDepartureLabel(label) {
+        const open = label.indexOf("(");
+        if (open === -1) return label; // bez zmian jeśli brak nawiasów
+
+        const time = label.substring(0, open).trim();
+        const subtitle = label.substring(open).replace(/[()]/g, "").trim();
+
+        return `${time}<br><span class="time-sub">${subtitle}</span>`;
+      }
+
       // Domyślny numer telefonu
       const DEFAULT_PHONE = "572138563";
 
@@ -1041,7 +1057,7 @@
           Miechowska: "14:39",
         },
 
-        "14:45 (kurs przez ul. Skalistą)": {
+        "14:45 (kurs przez <br> ul. Skalistą)": {
           "SKM Podjuchy": "14:45",
 
           Skalista: "14:47",
@@ -1914,25 +1930,27 @@
 
             const buttons = hasSavedStops
               ? `
-                              <div class="departure-buttons">
-                                  <button class="departure-btn-small copy-small" onclick="copyDepartureList(event, '${time}')">📋 Skopiuj</button>
-                                  <button class="departure-btn-small clear-small" onclick="clearDeparture(event, '${time}')">🗑️ Wyczyść</button>
-                              </div>
-                          `
+                                  <div class="departure-buttons">
+                                      <button class="departure-btn-small copy-small" onclick="copyDepartureList(event, '${time}')">📋 Skopiuj</button>
+                                      <button class="departure-btn-small clear-small" onclick="clearDeparture(event, '${time}')">🗑️ Wyczyść</button>
+                                  </div>
+                              `
               : "";
 
             return `
-                              <div class="departure-item">
-                                  <div class="departure-main" onclick="selectDeparture('${time}')">
-                                      <div class="departure-time">
-                                          <div class="time-icon">🕐</div>
-                                          <span class="time-text">${time}</span>
+                                  <div class="departure-item">
+                                      <div class="departure-main" onclick="selectDeparture('${time}')">
+                                          <div class="departure-time">
+                                              <div class="time-icon">🕐</div>
+                                              <span class="time-text">${formatDepartureLabel(
+                                                time
+                                              )}</span>
+                                          </div>
+                                          ${badge}
                                       </div>
-                                      ${badge}
+                                      ${buttons}
                                   </div>
-                                  ${buttons}
-                              </div>
-                          `;
+                              `;
           })
           .join("");
       }
@@ -1976,15 +1994,15 @@
             const time = stopTimes[stop];
 
             return `
-      <button class="stop-btn ${isSelected ? "selected" : ""}"
-              onclick="toggleStop('${stop}')">
-          <div class="stop-left">
-            <div class="checkbox">${checkmark}</div>
-            <span class="stop-name">${stop}</span>
-          </div>
-          <span class="stop-time">${time}</span>
-      </button>
-    `;
+          <button class="stop-btn ${isSelected ? "selected" : ""}"
+                  onclick="toggleStop('${stop}')">
+              <div class="stop-left">
+                <div class="checkbox">${checkmark}</div>
+                <span class="stop-name">${stop}</span>
+              </div>
+              <span class="stop-time">${time}</span>
+          </button>
+        `;
           })
           .join("");
       }
